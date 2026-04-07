@@ -34,12 +34,22 @@
             {{ work.description }}
           </p>
 
+          <button class="buy-btn" @click="openModal">
+            Приобрести
+          </button>
+
           <router-link to="/works" class="back-link">
             &larr; Back to Works
           </router-link>
         </div>
       </div>
     </div>
+
+    <ContactModal
+      :isOpen="isModalOpen"
+      :work="work"
+      @close="closeModal"
+    />
   </div>
 
   <div class="not-found" v-else>
@@ -53,13 +63,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getWorkBySlug } from '@/data/works'
 import Magnify from '@/components/Magnify.vue'
+import ContactModal from '@/components/ContactModal.vue'
 
 const route = useRoute()
 const work = computed(() => getWorkBySlug(route.params.slug as string))
+
+const isModalOpen = ref(false)
+
+const openModal = () => {
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+}
 </script>
 
 <style scoped>
@@ -141,7 +162,28 @@ const work = computed(() => getWorkBySlug(route.params.slug as string))
   font-size: 1.25rem;
   line-height: 1.9;
   color: var(--color-text);
-  margin: 0 0 3rem;
+  margin: 0 0 1.5rem;
+}
+
+.buy-btn {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  transition: opacity 0.3s ease;
+}
+
+.buy-btn:hover {
+  opacity: 0.8;
 }
 
 .back-link {

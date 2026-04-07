@@ -6,6 +6,10 @@
         <p class="series-description" v-if="seriesItem.description">
           {{ seriesItem.description }}
         </p>
+
+        <button class="buy-btn" @click="openModal">
+          Приобрести
+        </button>
       </header>
 
         <div class="series-images">
@@ -16,7 +20,7 @@
           >
             <template v-if="getWork(work.slug)">
               <router-link :to="`/works/${work.slug}`">
-                <Magnify :src="getWork(work.slug)?.image || ''" :alt="getWork(work.slug)?.title || ''" :zoom="2" />
+                <img :src="getWork(work.slug)?.image || ''" :alt="getWork(work.slug)?.title || ''" />
               </router-link>
               <div class="work-info">
                 <h3 class="work-title">{{ getWork(work.slug)?.title }}</h3>
@@ -30,6 +34,12 @@
         &larr; Back to Series
       </router-link>
     </div>
+
+    <ContactModal
+      :isOpen="isModalOpen"
+      :work="seriesItem"
+      @close="closeModal"
+    />
   </div>
 
   <div class="not-found" v-else>
@@ -43,17 +53,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getSeriesBySlug } from '@/data/series'
 import { getWorkBySlug } from '@/data/works'
-import Magnify from '@/components/Magnify.vue'
+import ContactModal from '@/components/ContactModal.vue'
 
 const route = useRoute()
 const seriesItem = computed(() => getSeriesBySlug(route.params.slug as string))
 
 function getWork(slug: string) {
   return getWorkBySlug(slug)
+}
+
+const isModalOpen = ref(false)
+
+const openModal = () => {
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
 }
 </script>
 
@@ -83,7 +103,28 @@ function getWork(slug: string) {
   line-height: 1.7;
   color: var(--color-text);
   max-width: 700px;
-  margin: 0;
+  margin: 0 0 1.5rem;
+}
+
+.buy-btn {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  margin-top: 1.5rem;
+  transition: opacity 0.3s ease;
+}
+
+.buy-btn:hover {
+  opacity: 0.8;
 }
 
 .series-images {

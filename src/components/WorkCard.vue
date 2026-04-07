@@ -6,6 +6,7 @@
     <div class="card-info">
       <h3 class="card-title">{{ work.title }}</h3>
       <p class="card-meta">{{ work.year }}</p>
+      <p class="card-size">{{ work.size }}</p>
     </div>
   </router-link>
 </template>
@@ -56,5 +57,11 @@ defineProps<{
   font-size: 0.8125rem;
   color: var(--color-text-light);
   margin: 0;
+}
+
+.card-size {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin: 0.25rem 0 0;
 }
 </style>

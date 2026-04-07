@@ -1,7 +1,7 @@
 <template>
   <div 
     class="magnify-wrapper"
-    @click="toggleZoom"
+    @touchend.prevent="handleTouchEnd"
   >
     <div 
       class="magnify-container" 
@@ -14,7 +14,7 @@
       <img :src="src" :alt="alt" class="magnify-image" :style="imageStyle" ref="imageRef" />
       <div v-if="isActive" class="magnify-result" :style="resultStyle"></div>
     </div>
-    <div v-if="isFullscreen" class="fullscreen-zoom" @click.stop="toggleZoom">
+    <div v-if="isFullscreen" class="fullscreen-zoom" @click="closeFullscreen">
       <img :src="src" :alt="alt" class="fullscreen-image" />
     </div>
   </div>
@@ -39,8 +39,16 @@ const isFullscreen = ref(false)
 const mouseX = ref(0)
 const mouseY = ref(0)
 
-function toggleZoom() {
-  isFullscreen.value = !isFullscreen.value
+function closeFullscreen() {
+  isFullscreen.value = false
+}
+
+function handleTouchEnd() {
+  if (isFullscreen.value) {
+    isFullscreen.value = false
+  } else {
+    isFullscreen.value = true
+  }
 }
 
 function updatePosition(clientX: number, clientY: number) {

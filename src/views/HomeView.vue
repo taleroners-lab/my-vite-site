@@ -14,13 +14,15 @@
     
     <main class="artwork-display">
       <div class="artwork-wrapper">
-        <router-link :to="`/works/${randomWork.slug}`">
-          <img 
-            :src="randomWork.image" 
-            :alt="randomWork.title"
-            class="artwork-image"
-          />
-        </router-link>
+        <Transition name="fade" mode="out-in">
+          <router-link :key="randomWork.slug" :to="`/works/${randomWork.slug}`">
+            <img 
+              :src="randomWork.image" 
+              :alt="randomWork.title"
+              class="artwork-image"
+            />
+          </router-link>
+        </Transition>
       </div>
     </main>
   </div>
@@ -131,7 +133,6 @@ onUnmounted(() => {
   width: auto;
   height: auto;
   display: block;
-  transition: opacity 0.5s ease;
 }
 
 .artwork-wrapper a {
@@ -185,5 +186,20 @@ onUnmounted(() => {
   .artwork-image {
     max-height: calc(100vh - 120px);
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1), transform 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: scale(1.02);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
 }
 </style>
