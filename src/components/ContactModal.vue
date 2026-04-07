@@ -3,26 +3,38 @@
     <div v-if="isOpen" class="overlay" @click.self="close">
       <div class="modal">
         <button class="close-btn" @click="close">&times;</button>
-        <h2>Связаться со мной:</h2>
+        
+        <template v-if="!isSent">
+          <h2>Связаться со мной:</h2>
 
-        <p class="desc">
-          Для коммерческих проектов или приобретения картин
-          заполните форму ниже, или используйте прямую почту:
-          <br /><br />
-          <b>{{ siteData.email }}</b>
-          <br /><br />
-          Название работы подставляется автоматически
-          <br /><br />
-          Спасибо!
-        </p>
+          <p class="desc">
+            Для коммерческих проектов или приобретения картин
+            заполните форму ниже:
+            <br /><br />
+            Название работы подставляется автоматически
+            <br /><br />
+            Спасибо!
+          </p>
 
-        <form @submit.prevent="submitForm" class="form">
-          <input v-model="email" placeholder="Ваш Email" required />
-          <input v-model="name" placeholder="Ваше имя" required />
-          <textarea v-model="message" placeholder="Ваше сообщение" required></textarea>
+          <form @submit.prevent="submitForm" class="form">
+            <input v-model="email" placeholder="Ваш Email" required />
+            <input v-model="name" placeholder="Ваше имя" required />
+            <textarea v-model="message" placeholder="Ваше сообщение" required></textarea>
 
-          <button type="submit" class="submit">Отправить</button>
-        </form>
+            <button type="submit" class="submit" :disabled="isLoading">
+              {{ isLoading ? 'Отправка...' : 'Отправить' }}
+            </button>
+          </form>
+        </template>
+
+        <template v-else>
+          <div class="success">
+            <h2>Спасибо!</h2>
+            <p>Ваше сообщение отправлено. Я свяжусь с вами в ближайшее время.</p>
+            <button class="submit" @click="close">Закрыть</button>
+          </div>
+        </template>
+
       </div>
     </div>
   </Teleport>
@@ -30,7 +42,8 @@
 
 <script setup lang="ts">
 import { watch, ref } from 'vue'
-import { siteData } from '@/data/site'
+
+const FORMSPREE_URL = 'https://formspree.io/f/mnjowyjp'
 
 const props = defineProps<{
   isOpen: boolean
@@ -42,6 +55,8 @@ const emit = defineEmits(['close'])
 const email = ref('')
 const name = ref('')
 const message = ref('')
+const isLoading = ref(false)
+const isSent = ref(false)
 
 watch(() => props.work, (newWork) => {
   if (newWork) {
@@ -51,6 +66,9 @@ watch(() => props.work, (newWork) => {
 
 watch(() => props.isOpen, (val) => {
   document.body.style.overflow = val ? 'hidden' : ''
+  if (!val) {
+    isSent.value = false
+  }
 })
 
 const close = () => {
@@ -58,11 +76,33 @@ const close = () => {
   emit('close')
 }
 
-const submitForm = () => {
-  const subject = encodeURIComponent(`Inquiry: ${props.work?.title || 'General'}`)
-  const body = encodeURIComponent(`Имя: ${name.value}\nEmail: ${email.value}\n\nСообщение:\n${message.value}`)
-  window.location.href = `mailto:${siteData.email}?subject=${subject}&body=${body}`
-  close()
+const submitForm = async () => {
+  isLoading.value = true
+  
+  const formData = {
+    email: email.value,
+    name: name.value,
+    message: message.value,
+    work: props.work?.title || ''
+  }
+  
+  try {
+    const response = await fetch(FORMSPREE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+    
+    if (response.ok) {
+      isSent.value = true
+    }
+  } catch (error) {
+    console.error('Error sending form:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -153,5 +193,24 @@ textarea {
 
 .submit:hover {
   opacity: 0.8;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.success {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.success h2 {
+  margin: 0 0 1rem;
+}
+
+.success p {
+  margin: 0 0 1.5rem;
+  color: #666;
 }
 </style>
