@@ -15,7 +15,7 @@
     <main class="artwork-display">
       <div class="artwork-wrapper">
         <Transition name="fade" mode="out-in">
-          <router-link :key="randomWork.slug" :to="`/works/${randomWork.slug}`">
+          <router-link :key="randomWork.slug" :to="randomWork.isSeries ? `/series/${randomWork.slug}` : `/works/${randomWork.slug}`">
             <img 
               :src="randomWork.image" 
               :alt="randomWork.title"
@@ -31,29 +31,37 @@
 <script setup lang="ts">
 import { siteData } from '@/data/site'
 import { getWorksForGallery } from '@/data/works'
+import { getSeries } from '@/data/series'
 import { ref, onMounted, onUnmounted } from 'vue'
 
-const works = getWorksForGallery()
+const galleryWorks = getWorksForGallery()
+const allSeries = getSeries()
+
+const allImages = [
+  ...galleryWorks.map(w => ({ slug: w.slug, image: w.image, title: w.title, isSeries: false })),
+  ...allSeries.map(s => ({ slug: s.slug, image: s.coverImage, title: s.title, isSeries: true }))
+]
+
 const currentIndex = ref(0)
 
 function getRandomIndex(): number {
-  if (works.length <= 1) return 0
+  if (allImages.length <= 1) return 0
   let newIndex: number
   do {
-    newIndex = Math.floor(Math.random() * works.length)
+    newIndex = Math.floor(Math.random() * allImages.length)
   } while (newIndex === currentIndex.value)
   return newIndex
 }
 
-const randomWork = ref(works[getRandomIndex()])
-currentIndex.value = works.findIndex(w => w.slug === randomWork.value.slug)
+const randomWork = ref(allImages[getRandomIndex()])
+currentIndex.value = allImages.findIndex(w => w.slug === randomWork.value.slug)
 
 let intervalId: ReturnType<typeof setInterval>
 
 onMounted(() => {
   intervalId = setInterval(() => {
     currentIndex.value = getRandomIndex()
-    randomWork.value = works[currentIndex.value]
+    randomWork.value = allImages[currentIndex.value]
   }, 5000)
 })
 

@@ -49,3 +49,7 @@ export const series: Series[] = [
 export function getSeriesBySlug(slug: string): Series | undefined {
   return series.find(s => s.slug === slug)
 }
+
+export function getSeries(): Series[] {
+  return series
+}
