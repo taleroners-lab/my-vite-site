@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from 'vue'
+import { watch, ref, onMounted } from 'vue'
 
 const FORMSPREE_URL = 'https://formspree.io/f/mnjowyjp'
 
@@ -57,6 +57,11 @@ const name = ref('')
 const message = ref('')
 const isLoading = ref(false)
 const isSent = ref(false)
+const bodyRef = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+  bodyRef.value = document.body
+})
 
 watch(() => props.work, (newWork) => {
   if (newWork) {
@@ -65,14 +70,18 @@ watch(() => props.work, (newWork) => {
 })
 
 watch(() => props.isOpen, (val) => {
-  document.body.style.overflow = val ? 'hidden' : ''
+  if (bodyRef.value) {
+    bodyRef.value.style.overflow = val ? 'hidden' : ''
+  }
   if (!val) {
     isSent.value = false
   }
 })
 
 const close = () => {
-  document.body.style.overflow = ''
+  if (bodyRef.value) {
+    bodyRef.value.style.overflow = ''
+  }
   emit('close')
 }
 

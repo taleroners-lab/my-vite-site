@@ -79,6 +79,7 @@ function handleTouch(event: TouchEvent) {
 }
 
 function checkIsMobile() {
+  if (typeof window === 'undefined') return
   isMobile.value = window.matchMedia('(hover: none) and (pointer: coarse)').matches
 }
 
@@ -94,7 +95,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', checkIsMobile)
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', checkIsMobile)
+  }
 })
 </script>
 
